@@ -1,0 +1,102 @@
+# Mouseless Backend API
+
+FastAPI backend for the Mouseless application with PostgreSQL database.
+
+## Setup
+
+1. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Set up PostgreSQL database:**
+   - Create a PostgreSQL database named `mouseless`
+   - Update the `DATABASE_URL` in `app/database.py` or set it as an environment variable:
+     ```bash
+     export DATABASE_URL="postgresql://username:password@localhost:5432/mouseless"
+     ```
+
+3. **Run database migrations (creates tables):**
+   The tables will be automatically created when you start the application, or you can create them manually by running:
+   ```python
+   from app.database import engine, Base
+   Base.metadata.create_all(bind=engine)
+   ```
+
+4. **Seed the database with initial problems:**
+   ```bash
+   python seed_data.py
+   ```
+
+5. **Start the server:**
+   ```bash
+   uvicorn main:app --reload --host 0.0.0.0 --port 8000
+   ```
+
+The API will be available at `http://localhost:8000`
+
+## API Endpoints
+
+### Authentication
+
+- **POST `/api/auth/session`**
+  - Creates a new session
+  - Returns: `{ "session_id": "...", "created_at": "..." }`
+  - No authentication required
+
+### Problems
+
+- **GET `/api/problems/random`**
+  - Returns a random problem
+  - Requires: `X-Session-ID` header
+  - Returns: `{ "id": 1, "name": "...", "original_text": "...", "modified_text": "...", "problem_id": "1" }`
+
+### Attempts
+
+- **POST `/api/attempts`**
+  - Stores attempt metrics for a problem
+  - Requires: `X-Session-ID` header
+  - Body:
+    ```json
+    {
+      "problem_id": 1,
+      "time_seconds": 45.5,
+      "key_strokes": 120,
+      "ccpm": 150.5
+    }
+    ```
+  - Returns: Attempt object with all fields including `id` and `created_at`
+
+## Database Schema
+
+### Problems
+- `id` (Integer, Primary Key)
+- `name` (String, required)
+- `original_text` (Text, required)
+- `modified_text` (Text, required)
+- `created_at` (DateTime)
+
+### Sessions
+- `session_id` (String, Primary Key, UUID)
+- `created_at` (DateTime)
+- `last_accessed_at` (DateTime)
+
+### Attempts
+- `id` (Integer, Primary Key)
+- `session_id` (String, Foreign Key to Sessions)
+- `problem_id` (Integer, Foreign Key to Problems)
+- `time_seconds` (Float)
+- `key_strokes` (Integer)
+- `ccpm` (Float - Characters Changed Per Minute)
+- `created_at` (DateTime)
+
+## Environment Variables
+
+- `DATABASE_URL`: PostgreSQL connection string (default: `postgresql://postgres:postgres@localhost:5432/mouseless`)
+
+## Development
+
+The API uses FastAPI's automatic interactive documentation:
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+
