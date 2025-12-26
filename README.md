@@ -46,6 +46,13 @@ FastAPI backend for the Mouseless application with PostgreSQL database.
    python seed_data.py
    ```
 
+   **To reset the database (drop all tables and reseed):**
+
+   ```bash
+   python drop_tables.py  # Drops all tables (requires confirmation)
+   python seed_data.py    # Reseeds the database
+   ```
+
 5. **Start the server:**
    ```bash
    uvicorn main:app --reload --host 0.0.0.0 --port 8000
@@ -57,10 +64,26 @@ The API will be available at `http://localhost:8000`
 
 ### Authentication
 
-- **POST `/api/auth/session`**
-  - Creates a new session
+- **POST `/api/auth/register`**
+
+  - Creates a new user account
+  - Body: `{ "username": "string", "password": "string" }`
+  - Password must be at least 6 characters
+  - Username must be unique
+  - Returns: `{ "id": 1, "username": "...", "created_at": "..." }`
+  - No authentication required
+
+- **POST `/api/auth/login`**
+
+  - Authenticate user and create a session
+  - Body: `{ "username": "string", "password": "string" }`
   - Returns: `{ "session_id": "...", "created_at": "..." }`
   - No authentication required
+
+- **GET `/api/auth/validate`**
+  - Validate a session ID and return the associated username
+  - Requires: `X-Session-ID` header
+  - Returns: `{ "session_id": "...", "username": "...", "created_at": "..." }`
 
 ### Problems
 
@@ -97,9 +120,17 @@ The API will be available at `http://localhost:8000`
 - `modified_text` (Text, required)
 - `created_at` (DateTime)
 
+### Users
+
+- `id` (Integer, Primary Key)
+- `username` (String, unique, required)
+- `hashed_password` (String, required) - Password is hashed and salted using bcrypt
+- `created_at` (DateTime)
+
 ### Sessions
 
 - `session_id` (String, Primary Key, UUID)
+- `user_id` (Integer, Foreign Key to Users, required)
 - `created_at` (DateTime)
 - `last_accessed_at` (DateTime)
 

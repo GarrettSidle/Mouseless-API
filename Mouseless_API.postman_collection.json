@@ -43,7 +43,35 @@
       "name": "Authentication",
       "item": [
         {
-          "name": "Create Session",
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Create a new user account. Username must be unique. Password must be at least 6 characters. Password will be hashed and salted before storage."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
           "event": [
             {
               "listen": "test",
@@ -53,6 +81,7 @@
                   "    const response = pm.response.json();",
                   "    pm.environment.set(\"session_id\", response.session_id);",
                   "    console.log(\"Session ID saved:\", response.session_id);",
+                  "    console.log(\"Logged in successfully\");",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -67,12 +96,57 @@
                 "value": "application/json"
               }
             ],
-            "url": {
-              "raw": "{{base_url}}/api/auth/session",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "session"]
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"testuser\",\n    \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
-            "description": "Create a new session. The session ID will be automatically saved to the environment variable 'session_id' for use in other requests."
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Authenticate user and create a session. Returns a session ID that will be automatically saved to the environment variable 'session_id' for use in other requests."
+          },
+          "response": []
+        },
+        {
+          "name": "Validate Session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    console.log(\"Session is valid\");",
+                  "    console.log(\"Username:\", response.username);",
+                  "    console.log(\"Session ID:\", response.session_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-ID",
+                "value": "{{session_id}}",
+                "description": "Session ID from login"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/validate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "validate"]
+            },
+            "description": "Validate a session ID and return the associated username. Requires X-Session-ID header."
           },
           "response": []
         }

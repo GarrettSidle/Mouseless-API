@@ -3,13 +3,35 @@ from typing import Optional
 from datetime import datetime
 
 
-# Session schemas
-class SessionCreate(BaseModel):
-    pass  # Session ID will be generated server-side
+# User schemas
+class UserCreate(BaseModel):
+    username: str
+    password: str
+
+
+class UserResponse(BaseModel):
+    id: int
+    username: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# Auth schemas
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+class LoginResponse(BaseModel):
+    session_id: str
+    created_at: datetime
 
 
 class SessionResponse(BaseModel):
     session_id: str
+    username: str
     created_at: datetime
 
     class Config:

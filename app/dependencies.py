@@ -47,3 +47,12 @@ def verify_session(db: Session, session_id: str) -> SessionModel:
     
     return session
 
+
+def get_current_user(db: Session, session_id: str):
+    """
+    Get the current user from a session ID.
+    Raises 401 if session doesn't exist or is invalid.
+    """
+    session = verify_session(db, session_id)
+    return session.user
+
