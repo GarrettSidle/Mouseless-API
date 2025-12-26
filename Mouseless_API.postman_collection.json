@@ -66,7 +66,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "auth", "register"]
             },
-            "description": "Create a new user account. Username must be unique. Password must be at least 6 characters. Password will be hashed and salted before storage."
+            "description": "Create a new user account. Username must be unique. Password must be at least 3 characters. Password will be hashed and salted before storage."
           },
           "response": []
         },
@@ -152,85 +152,85 @@
         }
       ]
     },
-     {
-       "name": "Problems",
-       "item": [
-         {
-           "name": "Get Random Problem (No Session)",
-           "event": [
-             {
-               "listen": "test",
-               "script": {
-                 "exec": [
-                   "if (pm.response.code === 200) {",
-                   "    const response = pm.response.json();",
-                   "    pm.environment.set(\"problem_id\", response.id);",
-                   "    console.log(\"Problem ID saved:\", response.id);",
-                   "    console.log(\"Problem Name:\", response.name);",
-                   "    console.log(\"Best time:\", response.best_time);",
-                   "}"
-                 ],
-                 "type": "text/javascript"
-               }
-             }
-           ],
-           "request": {
-             "method": "GET",
-             "header": [],
-             "url": {
-               "raw": "{{base_url}}/api/problems/random",
-               "host": ["{{base_url}}"],
-               "path": ["api", "problems", "random"]
-             },
-             "description": "Get a random problem from the database without session. Best time stats will be null. The problem ID will be automatically saved to the environment variable 'problem_id'."
-           },
-           "response": []
-         },
-         {
-           "name": "Get Random Problem (With Session)",
-           "event": [
-             {
-               "listen": "test",
-               "script": {
-                 "exec": [
-                   "if (pm.response.code === 200) {",
-                   "    const response = pm.response.json();",
-                   "    pm.environment.set(\"problem_id\", response.id);",
-                   "    console.log(\"Problem ID saved:\", response.id);",
-                   "    console.log(\"Problem Name:\", response.name);",
-                   "    if (response.best_time !== null) {",
-                   "        console.log(\"Best time:\", response.best_time, \"seconds\");",
-                   "        console.log(\"Best key strokes:\", response.best_key_strokes);",
-                   "        console.log(\"Best CCPM:\", response.best_ccpm);",
-                   "    } else {",
-                   "        console.log(\"No previous attempts for this problem\");",
-                   "    }",
-                   "}"
-                 ],
-                 "type": "text/javascript"
-               }
-             }
-           ],
-           "request": {
-             "method": "GET",
-             "header": [
-               {
-                 "key": "X-Session-ID",
-                 "value": "{{session_id}}",
-                 "description": "Session ID from authentication (optional - if provided, returns best attempt stats)"
-               }
-             ],
-             "url": {
-               "raw": "{{base_url}}/api/problems/random",
-               "host": ["{{base_url}}"],
-               "path": ["api", "problems", "random"]
-             },
-             "description": "Get a random problem from the database with session. If you have attempted this problem before, the response will include your best_time, best_key_strokes, and best_ccpm. The problem ID will be automatically saved to the environment variable 'problem_id'."
-           },
-           "response": []
-         }
-       ]
-     },
+    {
+      "name": "Problems",
+      "item": [
+        {
+          "name": "Get Random Problem (No Session)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set(\"problem_id\", response.id);",
+                  "    console.log(\"Problem ID saved:\", response.id);",
+                  "    console.log(\"Problem Name:\", response.name);",
+                  "    console.log(\"Best time:\", response.best_time);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/problems/random",
+              "host": ["{{base_url}}"],
+              "path": ["api", "problems", "random"]
+            },
+            "description": "Get a random problem from the database without session. Best time stats will be null. The problem ID will be automatically saved to the environment variable 'problem_id'."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Random Problem (With Session)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set(\"problem_id\", response.id);",
+                  "    console.log(\"Problem ID saved:\", response.id);",
+                  "    console.log(\"Problem Name:\", response.name);",
+                  "    if (response.best_time !== null) {",
+                  "        console.log(\"Best time:\", response.best_time, \"seconds\");",
+                  "        console.log(\"Best key strokes:\", response.best_key_strokes);",
+                  "        console.log(\"Best CCPM:\", response.best_ccpm);",
+                  "    } else {",
+                  "        console.log(\"No previous attempts for this problem\");",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-ID",
+                "value": "{{session_id}}",
+                "description": "Session ID from authentication (optional - if provided, returns best attempt stats)"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/problems/random",
+              "host": ["{{base_url}}"],
+              "path": ["api", "problems", "random"]
+            },
+            "description": "Get a random problem from the database with session. If you have attempted this problem before, the response will include your best_time, best_key_strokes, and best_ccpm. The problem ID will be automatically saved to the environment variable 'problem_id'."
+          },
+          "response": []
+        }
+      ]
+    },
     {
       "name": "Attempts",
       "item": [

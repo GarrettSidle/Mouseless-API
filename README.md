@@ -68,7 +68,7 @@ The API will be available at `http://localhost:8000`
 
   - Creates a new user account
   - Body: `{ "username": "string", "password": "string" }`
-  - Password must be at least 6 characters
+  - Password must be at least 3 characters
   - Username must be unique
   - Returns: `{ "id": 1, "username": "...", "created_at": "..." }`
   - No authentication required

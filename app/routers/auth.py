@@ -32,10 +32,10 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
             detail="Username cannot be empty"
         )
     
-    if not user_data.password or len(user_data.password) < 6:
+    if not user_data.password or len(user_data.password) < 3:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password must be at least 6 characters long"
+            detail="Password must be at least 3 characters long"
         )
     
     # Hash password
