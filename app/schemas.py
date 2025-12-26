@@ -23,6 +23,9 @@ class ProblemResponse(BaseModel):
     original_text: str
     modified_text: str
     problem_id: str  # For frontend compatibility, this will be the string representation of id
+    best_time: Optional[float] = None  # Best time in seconds for this session (if session provided)
+    best_key_strokes: Optional[int] = None  # Best (minimum) key strokes for this session (if session provided)
+    best_ccpm: Optional[float] = None  # Best (maximum) CCPM for this session (if session provided)
 
     class Config:
         from_attributes = True

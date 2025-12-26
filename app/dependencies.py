@@ -20,6 +20,15 @@ def get_session_id(x_session_id: Optional[str] = Header(None)) -> str:
     return x_session_id
 
 
+def get_optional_session_id(x_session_id: Optional[str] = Header(None)) -> Optional[str]:
+    """
+    Dependency to extract session ID from header (optional).
+    Returns None if no session ID is provided.
+    Expects header: X-Session-ID (FastAPI automatically converts x_session_id to X-Session-ID)
+    """
+    return x_session_id
+
+
 def verify_session(db: Session, session_id: str) -> SessionModel:
     """
     Verify that the session exists and update last_accessed_at.

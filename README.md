@@ -5,11 +5,27 @@ FastAPI backend for the Mouseless application with PostgreSQL database.
 ## Setup
 
 1. **Install dependencies:**
+
    ```bash
    pip install -r requirements.txt
    ```
 
+   **Troubleshooting installation issues on Windows:**
+
+   - If you encounter errors with `pydantic-core`, try:
+     ```bash
+     pip install --upgrade pip setuptools wheel
+     pip install pydantic --no-build-isolation
+     pip install -r requirements.txt
+     ```
+   - Or install Microsoft C++ Build Tools: https://visualstudio.microsoft.com/visual-cpp-build-tools/
+   - Alternative: Use a pre-built wheel:
+     ```bash
+     pip install fastapi uvicorn[standard] sqlalchemy psycopg2-binary pydantic python-dotenv
+     ```
+
 2. **Set up PostgreSQL database:**
+
    - Create a PostgreSQL database named `mouseless`
    - Update the `DATABASE_URL` in `app/database.py` or set it as an environment variable:
      ```bash
@@ -18,12 +34,14 @@ FastAPI backend for the Mouseless application with PostgreSQL database.
 
 3. **Run database migrations (creates tables):**
    The tables will be automatically created when you start the application, or you can create them manually by running:
+
    ```python
    from app.database import engine, Base
    Base.metadata.create_all(bind=engine)
    ```
 
 4. **Seed the database with initial problems:**
+
    ```bash
    python seed_data.py
    ```
@@ -48,8 +66,10 @@ The API will be available at `http://localhost:8000`
 
 - **GET `/api/problems/random`**
   - Returns a random problem
-  - Requires: `X-Session-ID` header
-  - Returns: `{ "id": 1, "name": "...", "original_text": "...", "modified_text": "...", "problem_id": "1" }`
+  - Session ID is optional in `X-Session-ID` header
+  - If session ID is provided and valid, includes best attempt stats (`best_time`, `best_key_strokes`, `best_ccpm`)
+  - Returns: `{ "id": 1, "name": "...", "original_text": "...", "modified_text": "...", "problem_id": "1", "best_time": 45.5, "best_key_strokes": 120, "best_ccpm": 150.5 }`
+  - Best stats are `null` if no session provided or no previous attempts exist
 
 ### Attempts
 
@@ -70,6 +90,7 @@ The API will be available at `http://localhost:8000`
 ## Database Schema
 
 ### Problems
+
 - `id` (Integer, Primary Key)
 - `name` (String, required)
 - `original_text` (Text, required)
@@ -77,11 +98,13 @@ The API will be available at `http://localhost:8000`
 - `created_at` (DateTime)
 
 ### Sessions
+
 - `session_id` (String, Primary Key, UUID)
 - `created_at` (DateTime)
 - `last_accessed_at` (DateTime)
 
 ### Attempts
+
 - `id` (Integer, Primary Key)
 - `session_id` (String, Foreign Key to Sessions)
 - `problem_id` (Integer, Foreign Key to Problems)
@@ -97,6 +120,6 @@ The API will be available at `http://localhost:8000`
 ## Development
 
 The API uses FastAPI's automatic interactive documentation:
+
 - Swagger UI: `http://localhost:8000/docs`
 - ReDoc: `http://localhost:8000/redoc`
-
