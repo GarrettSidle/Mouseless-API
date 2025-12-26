@@ -1,0 +1,257 @@
+{
+  "info": {
+    "_postman_id": "mouseless-api-collection",
+    "name": "Mouseless API",
+    "description": "Postman collection for testing the Mouseless FastAPI backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Root",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            },
+            "description": "Root endpoint to check API availability"
+          },
+          "response": []
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Health check endpoint"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Create Session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set(\"session_id\", response.session_id);",
+                  "    console.log(\"Session ID saved:\", response.session_id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/session",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "session"]
+            },
+            "description": "Create a new session. The session ID will be automatically saved to the environment variable 'session_id' for use in other requests."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Problems",
+      "item": [
+        {
+          "name": "Get Random Problem",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set(\"problem_id\", response.id);",
+                  "    console.log(\"Problem ID saved:\", response.id);",
+                  "    console.log(\"Problem Name:\", response.name);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-Session-ID",
+                "value": "{{session_id}}",
+                "description": "Session ID from authentication"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/problems/random",
+              "host": ["{{base_url}}"],
+              "path": ["api", "problems", "random"]
+            },
+            "description": "Get a random problem from the database. Requires a valid session ID in the X-Session-ID header. The problem ID will be automatically saved to the environment variable 'problem_id'."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Attempts",
+      "item": [
+        {
+          "name": "Create Attempt",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Optional: Get a random problem ID first",
+                  "// You can manually set problem_id in the request body",
+                  "// or use a previous response from Get Random Problem"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Session-ID",
+                "value": "{{session_id}}",
+                "description": "Session ID from authentication"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"problem_id\": 1,\n    \"time_seconds\": 45.5,\n    \"key_strokes\": 120,\n    \"ccpm\": 150.5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/attempts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attempts"]
+            },
+            "description": "Store attempt metrics for a problem. Requires a valid session ID in the X-Session-ID header.\n\n**Fields:**\n- `problem_id` (integer): ID of the problem attempted\n- `time_seconds` (float): Time taken in seconds\n- `key_strokes` (integer): Number of keystrokes\n- `ccpm` (float): Characters Changed Per Minute"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Attempt (Complete Flow Example)",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// This example shows how to use a problem_id from a previous request",
+                  "// Make sure you've run 'Get Random Problem' first to get a problem_id",
+                  "// Then update the problem_id in the body below"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Session-ID",
+                "value": "{{session_id}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"problem_id\": {{problem_id}},\n    \"time_seconds\": 62.3,\n    \"key_strokes\": 156,\n    \"ccpm\": 180.2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              },
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/attempts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "attempts"]
+            },
+            "description": "Example with environment variable for problem_id. Set the problem_id environment variable after getting a random problem."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "session_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "problem_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
