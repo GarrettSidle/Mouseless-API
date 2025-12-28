@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 
@@ -45,9 +45,12 @@ class ProblemResponse(BaseModel):
     original_text: str
     modified_text: str
     problem_id: str  # For frontend compatibility, this will be the string representation of id
-    best_time: Optional[float] = None  # Best time in seconds for this session (if session provided)
-    best_key_strokes: Optional[int] = None  # Best (minimum) key strokes for this session (if session provided)
-    best_ccpm: Optional[float] = None  # Best (maximum) CCPM for this session (if session provided)
+    best_time: Optional[float] = None  # Best time in seconds for this user (if logged in)
+    best_key_strokes: Optional[int] = None  # Best (minimum) key strokes for this user (if logged in)
+    best_ccpm: Optional[float] = None  # Best (maximum) CCPM for this user (if logged in)
+    time_histogram: Optional[List[float]] = None  # Histogram data for time (bucketized to 3 seconds)
+    strokes_histogram: Optional[List[float]] = None  # Histogram data for strokes (bucketized to 3 keystrokes)
+    ccpm_histogram: Optional[List[float]] = None  # Histogram data for CCPM (bucketized to 100 CCPM)
 
     class Config:
         from_attributes = True
@@ -63,7 +66,7 @@ class AttemptCreate(BaseModel):
 
 class AttemptResponse(BaseModel):
     id: int
-    session_id: str
+    user_id: Optional[int] = None
     problem_id: int
     time_seconds: float
     key_strokes: int

@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, String, Text, Float, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, Float, DateTime, ForeignKey, Enum as SQLEnum, UniqueConstraint
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
+import enum
 
 
 class User(Base):
@@ -12,8 +14,9 @@ class User(Base):
     hashed_password = Column(String(255), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    # Relationship to sessions
+    # Relationships
     sessions = relationship("Session", back_populates="user")
+    attempts = relationship("Attempt", back_populates="user")
 
 
 class Problem(Base):
@@ -25,8 +28,9 @@ class Problem(Base):
     modified_text = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    # Relationship to attempts
+    # Relationships
     attempts = relationship("Attempt", back_populates="problem")
+    histograms = relationship("ProblemHistogram", back_populates="problem", cascade="all, delete-orphan")
 
 
 class Session(Base):
@@ -39,14 +43,35 @@ class Session(Base):
 
     # Relationships
     user = relationship("User", back_populates="sessions")
-    attempts = relationship("Attempt", back_populates="session")
+
+
+class HistogramDataType(enum.Enum):
+    TIME = "time"
+    STROKES = "strokes"
+    CCPM = "ccpm"
+
+
+class ProblemHistogram(Base):
+    __tablename__ = "problem_histograms"
+
+    id = Column(Integer, primary_key=True, index=True)
+    problem_id = Column(Integer, ForeignKey("problems.id"), nullable=False, index=True)
+    data_type = Column(SQLEnum(HistogramDataType), nullable=False, index=True)
+    values = Column(ARRAY(Float), nullable=False, default=[])  # Array of float values
+    
+    # Relationships
+    problem = relationship("Problem", back_populates="histograms")
+    
+    __table_args__ = (
+        UniqueConstraint('problem_id', 'data_type', name='uq_problem_histogram'),
+    )
 
 
 class Attempt(Base):
     __tablename__ = "attempts"
 
     id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(String(255), ForeignKey("sessions.session_id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     problem_id = Column(Integer, ForeignKey("problems.id"), nullable=False, index=True)
     time_seconds = Column(Float, nullable=False)
     key_strokes = Column(Integer, nullable=False)
@@ -54,6 +79,6 @@ class Attempt(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
-    session = relationship("Session", back_populates="attempts")
+    user = relationship("User", back_populates="attempts")
     problem = relationship("Problem", back_populates="attempts")
 

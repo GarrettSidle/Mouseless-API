@@ -29,11 +29,17 @@ if __name__ == "__main__":
     print("WARNING: This will delete ALL data in the database!")
     print("=" * 60)
     
-    response = input("Are you sure you want to drop all tables? (yes/no): ")
+    response = input("Are you sure you want to drop all tables? (yes/no): ") 
     
     if response.lower() in ['yes', 'y']:
         drop_all_tables()
     else:
         print("Operation cancelled.")
         sys.exit(0)
+
+
+
+
+
+
 
